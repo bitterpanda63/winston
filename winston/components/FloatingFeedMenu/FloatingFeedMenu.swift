@@ -64,21 +64,33 @@ struct FloatingFeedMenu: View, Equatable {
     }
   }
   
-  var body: some View {
+var body: some View {
     ZStack(alignment: .bottomTrailing) {
-      FloatingBGBlur(active: menuOpen, dismiss: dismiss).equatable()
-      
-      HStack(alignment: .bottom, spacing: 0) {
-        ZStack(alignment: .bottomTrailing) {
-          if !showingFilters, !selected.isEmpty, let selectedFilter = filters.first(where: { $0.id == selected }) {
-            FilterButton(filter: selectedFilter, isSelected: true, filterCallback: filterCallback, searchText: searchText, searchCallback: searchCallback, customFilterCallback: customFilterCallback)
-              .equatable()
-              .matchedGeometryEffect(id: "floating-\(selectedFilter.id)", in: ns, properties: .position)
-              .padding(.trailing, itemsSpacingDownscaled)
-              .frame(height: mainTriggerSize)
-              .padding(.bottom, screenEdgeMargin)
-              .transition(.offset(x: 0.01))
-          }
+        // FIXED: Blur only appears when menu is actually open
+        if menuOpen && !showingFilters {
+            FloatingBGBlur(active: true, dismiss: dismiss).equatable()
+        }
+        
+        HStack(alignment: .bottom, spacing: 0) {
+            ZStack(alignment: .bottomTrailing) {
+                if !showingFilters, !selected.isEmpty, 
+                   let selectedFilter = filters.first(where: { $0.id == selected }) {
+                    
+                    FilterButton(
+                        filter: selectedFilter,
+                        isSelected: true,
+                        filterCallback: filterCallback,
+                        searchText: searchText,
+                        searchCallback: searchCallback,
+                        customFilterCallback: customFilterCallback
+                    )
+                    .equatable()
+                    .matchedGeometryEffect(id: "floating-\(selectedFilter.id)", in: ns, properties: .position)
+                    .padding(.trailing, itemsSpacingDownscaled)
+                    .frame(height: mainTriggerSize)
+                    .padding(.bottom, screenEdgeMargin)
+                    .transition(.offset(x: 0.01))
+                }
           
           let sortedFlairs = filters.filter({ $0.type == "flair" }).sorted(by: {$0.occurences > $1.occurences })
           let customFilters = filters.filter({ $0.type != "flair" })
